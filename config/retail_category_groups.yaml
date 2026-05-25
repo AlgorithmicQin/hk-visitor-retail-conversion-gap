@@ -1,0 +1,54 @@
+groups:
+  tourist_sensitive_discretionary:
+    description: Categories plausibly exposed to visitor spending and discretionary shopping patterns.
+    categories:
+      - name: Clothing, footwear and allied products
+      - name: Department stores
+      - name: Footwear, allied products and other clothing accessories
+      - name: Jewellery, watches and clocks, and valuable gifts
+      - name: Medicines and cosmetics
+        note: Ambiguous; includes local personal care and visitor shopping demand.
+      - name: Optical shops
+        note: Ambiguous; can reflect both local services and visitor discretionary purchases.
+      - name: Wearing apparel
+
+  local_daily_consumption:
+    description: Categories more closely tied to everyday local consumption.
+    categories:
+      - name: Alcoholic drinks and tobacco
+        note: Ambiguous; can include visitor spending, but treated as daily consumption for this pilot.
+      - name: Bread, pastry, confectionery and biscuits
+      - name: Chinese drugs and herbs
+      - name: Fish, livestock and poultry, fresh or frozen
+      - name: Food, alcoholic drinks and tobacco (other than supermarkets)
+      - name: Fruits and vegetables, fresh
+      - name: Other food not elsewhere classified
+      - name: Supermarkets
+      - name: Supermarkets and supermarket sections of department stores
+
+  durable_household:
+    description: Durable goods and household-related categories with replacement-cycle behavior.
+    categories:
+      - name: Consumer durable goods
+      - name: Electrical goods and other consumer durable goods not elsewhere classified
+      - name: Fuels
+        note: Ambiguous; not a household durable, but grouped here as non-daily durable/transport-linked consumption.
+      - name: Furniture and fixtures
+      - name: Motor vehicles and parts
+
+  residual_other:
+    description: Broad aggregate or residual categories kept separate from interpretation-heavy comparisons.
+    categories:
+      - name: Books, newspapers, stationery and gifts
+        note: Ambiguous mixed category; includes both local and discretionary gifting.
+      - name: Other consumer goods
+        note: Broad parent category; can overlap conceptually with residual subcategories.
+      - name: Other consumer goods not elsewhere classified
+        note: Residual category with strong signal but unclear composition.
+
+  benchmark_total:
+    description: Total retail benchmark, excluded from group-average behavioral interpretation.
+    excluded_from_behavioral_interpretation: true
+    categories:
+      - name: Total
+        note: Overall retail benchmark, not a behavioral retail category.
