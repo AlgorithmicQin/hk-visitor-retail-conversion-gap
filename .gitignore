@@ -3,6 +3,10 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 
+docs/internal_audit.md
+docs/final_structure_audit.md
+docs/pilot_notes.md
+
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*

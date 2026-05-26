@@ -1,6 +1,7 @@
 pandas
 matplotlib
 PyYAML
+seaborn
 statsmodels
 openpyxl
 xlrd

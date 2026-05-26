@@ -24,6 +24,20 @@ Current working thesis:
 Total retail masks category-specific recovery paths. Tourist-sensitive discretionary categories moved from early reopening outperformance to recent underperformance relative to visitor recovery, and this reversal is robust to the same-month 2019 baseline check. Local daily and durable/household categories are closer to visitor recovery and more baseline-sensitive, so they should be interpreted more cautiously.
 ```
 
+## Dashboard Preview
+
+### Overview
+
+![Dashboard overview](docs/assets/dashboard_overview.png)
+
+### Visitor-Retail Gap
+
+![Visitor-retail gap](docs/assets/dashboard_gap.png)
+
+### Tourist-Sensitive Reversal
+
+![Tourist-sensitive reversal](docs/assets/dashboard_tourist_sensitive.png)
+
 ## Data
 
 The current visitor-retail layer uses official Hong Kong Census and Statistics Department public data:
@@ -33,6 +47,12 @@ The current visitor-retail layer uses official Hong Kong Census and Statistics D
 - Coverage in the current processed pilot outputs: `201801` to `202603`.
 
 The project uses aggregate monthly public data only. It does not include transaction-level data or tourist-spending microdata.
+
+## Data Access
+
+Raw official datasets are not redistributed in this repository. To reproduce the project, obtain the C&SD source payloads locally and save them under the expected `data/raw/` filenames before running the preprocessing script.
+
+See `docs/raw_data_acquisition.md` for the required tables, expected local filenames, and preprocessing notes.
 
 ## Methods
 
@@ -63,10 +83,11 @@ Interpretation:
 
 Documentation:
 
+- `docs/executive_summary.md`
 - `docs/current_findings.md`
 - `docs/methodology.md`
 - `docs/limitations.md`
-- `docs/internal_audit.md`
+- `docs/raw_data_acquisition.md`
 
 Generated tables and figures:
 
@@ -89,6 +110,8 @@ Key generated tables include recovery panels, category and group gap diagnostics
 
 ## How To Reproduce
 
+Obtain the raw official C&SD payloads first; see `docs/raw_data_acquisition.md`.
+
 The conservative script order is:
 
 ```bash
@@ -104,6 +127,8 @@ python src/baseline_sensitivity.py
 
 The raw C&SD API JSON payloads should already be present in `data/raw/` before preprocessing. The original 2018-2019 baseline outputs are not overwritten by the baseline sensitivity script.
 
+Generated tables and figures are ignored by design. Run the full pipeline before launching the dashboard, because the dashboard reads regenerated files from `outputs/tables/`.
+
 ## How To Run Dashboard Locally
 
 ```bash
@@ -117,3 +142,11 @@ Run the reproduction scripts first so the dashboard can read the generated table
 Research pilot / portfolio candidate, not a final production dashboard.
 
 The current scope is visitor-retail category mismatch only. Hotel and event modules are intentionally excluded from the present results.
+
+## License
+
+Code is released under the MIT License. Official datasets are not covered by this code license.
+
+## Public Data Disclaimer
+
+This repository does not redistribute raw official datasets. Users should obtain official data from the original public sources. Official statistics remain the property of their respective publishers.
