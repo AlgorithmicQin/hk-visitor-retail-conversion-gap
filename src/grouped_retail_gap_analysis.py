@@ -236,7 +236,7 @@ def write_markdown_summary(summary: pd.DataFrame, mapping: pd.DataFrame) -> None
 
 def main() -> None:
     recovery = pd.read_csv(RECOVERY_PATH)
-    diagnostics = pd.read_csv(DIAGNOSTICS_PATH)
+    diagnostics = pd.read_csv(DIAGNOSTICS_PATH) if DIAGNOSTICS_PATH.exists() else None
     mapping = load_group_mapping()
     validate_mapping(recovery, mapping)
 
@@ -288,7 +288,10 @@ def main() -> None:
         print(benchmark[["retail_group", "reopening_avg_gap", "reopening_median_gap", "latest_gap"]].to_string(index=False))
     print(f"\nTourist-sensitive minus local-daily average gap: {tourist - local:.2f}")
     print(f"Residual categories flagged separately: {', '.join(residual)}")
-    print("\nDiagnostics source categories:", diagnostics["retail_category"].nunique())
+    if diagnostics is not None:
+        print("\nDiagnostics source categories:", diagnostics["retail_category"].nunique())
+    else:
+        print("\nDiagnostics source categories: unavailable; category_gap_diagnostics.csv was not found")
     print("\nOutputs:")
     for path in [
         TABLE_DIR / "retail_group_recovery.csv",

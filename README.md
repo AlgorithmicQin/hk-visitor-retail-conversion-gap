@@ -95,11 +95,14 @@ The conservative script order is:
 python src/preprocess_censd_json.py
 python src/visitor_retail_pilot.py
 python src/grouped_retail_gap_analysis.py
+python src/retail_group_phase_analysis.py
+python src/tourist_sensitive_drilldown.py
+python src/local_daily_durable_drilldown.py
 python src/regression_robustness.py
 python src/baseline_sensitivity.py
 ```
 
-The raw C&SD API JSON payloads should already be present in `data/raw/` before preprocessing. Some phase segmentation and drilldown tables were produced during the pilot analysis and are stored under `outputs/tables/`; the listed script order includes the currently formalized scripts in `src/`. The original 2018-2019 baseline outputs are not overwritten by the baseline sensitivity script.
+The raw C&SD API JSON payloads should already be present in `data/raw/` before preprocessing. The original 2018-2019 baseline outputs are not overwritten by the baseline sensitivity script.
 
 ## Project Status
 
