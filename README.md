@@ -15,6 +15,7 @@ This is a research pilot, and the findings should be read as descriptive evidenc
 - The tourist-sensitive reversal is robust to baseline choice:
   - Baseline A: 2018-2019 average = 100.
   - Baseline B: 2019 same-month = 100.
+- Grouping robustness tests whether the finding survives alternative tourist-sensitive category definitions.
 - Local daily and durable/household interpretations are more baseline-sensitive and closer to visitor recovery.
 - Visitor recovery alone has weak explanatory fit. Group and phase structure are more informative for describing category-specific recovery patterns.
 
@@ -64,6 +65,7 @@ The pipeline currently covers:
 - Recovery index construction.
 - Visitor-retail conversion gap calculation.
 - Rule-based retail category grouping documented in `config/retail_category_groups.yaml`.
+- Grouping robustness checks for alternative tourist-sensitive category definitions.
 - Phase segmentation.
 - Category and group drilldown analysis.
 - Descriptive regression.
@@ -87,6 +89,7 @@ Documentation:
 
 - `docs/executive_summary.md`
 - `docs/current_findings.md`
+- `docs/decision_implications.md`
 - `docs/methodology.md`
 - `docs/limitations.md`
 - `docs/raw_data_acquisition.md`
@@ -130,6 +133,7 @@ python src/visitor_retail_pilot.py
 python src/grouped_retail_gap_analysis.py
 python src/retail_group_phase_analysis.py
 python src/tourist_sensitive_drilldown.py
+python src/grouping_robustness.py
 python src/local_daily_durable_drilldown.py
 python src/regression_robustness.py
 python src/baseline_sensitivity.py
@@ -138,6 +142,12 @@ python src/baseline_sensitivity.py
 The raw C&SD API JSON payloads should already be present in `data/raw/` before preprocessing. The baseline sensitivity script writes separate output files and does not overwrite the primary baseline outputs.
 
 Generated tables and figures are ignored by design. Run the full pipeline before launching the dashboard, because the dashboard reads regenerated files from `outputs/tables/`.
+
+## Tests
+
+```bash
+pytest
+```
 
 ## How To Run Dashboard Locally
 

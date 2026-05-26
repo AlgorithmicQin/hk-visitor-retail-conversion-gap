@@ -20,6 +20,7 @@ PIPELINE_SCRIPTS = [
     PROJECT_ROOT / "src" / "grouped_retail_gap_analysis.py",
     PROJECT_ROOT / "src" / "retail_group_phase_analysis.py",
     PROJECT_ROOT / "src" / "tourist_sensitive_drilldown.py",
+    PROJECT_ROOT / "src" / "grouping_robustness.py",
     PROJECT_ROOT / "src" / "local_daily_durable_drilldown.py",
     PROJECT_ROOT / "src" / "regression_robustness.py",
     PROJECT_ROOT / "src" / "baseline_sensitivity.py",

@@ -97,6 +97,20 @@ Baseline B weakens any simple claim that local daily or durable/household catego
 
 The narrower robustness-driven finding is that tourist-sensitive discretionary retail shows recent underperformance relative to visitor recovery across both baseline choices, while local daily and durable/household groups are more baseline-sensitive and closer to visitor recovery.
 
+## Grouping Robustness Check
+
+The grouping robustness layer tests whether the tourist-sensitive recent underperformance survives alternative tourist-sensitive category definitions. It uses the same gap formula and equal-weights category-level phase averages within each definition.
+
+Recent adjustment results:
+
+| Definition | Categories | Recent adjustment avg gap | Negative categories | Finding survives |
+| --- | ---: | ---: | ---: | --- |
+| `current` | `7` | `-12.17` | `7 of 7` | yes |
+| `strict` | `5` | `-14.31` | `5 of 5` | yes |
+| `broad` | `10` | `-6.14` | `8 of 10` | yes |
+
+The `strict` definition excludes ambiguous `Medicines and cosmetics` and `Optical shops`. The `broad` definition adds plausible visitor-facing mixed categories. Under all three definitions, the recent adjustment average gap remains negative and at least half of included categories are below visitor recovery. This supports the robustness of the tourist-sensitive underperformance finding, while remaining descriptive rather than causal.
+
 ## Regression Supports Group And Phase Structure
 
 The regression layer is consistent with group and phase structure being important for interpretation in a descriptive sense.
