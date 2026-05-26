@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 
@@ -21,6 +22,56 @@ TABLES = {
     "baseline_tourist": TABLE_DIR / "baseline_sensitivity_tourist_sensitive_drilldown.csv",
 }
 
+GROUP_LABELS = {
+    "benchmark_total": "Total benchmark",
+    "tourist_sensitive_discretionary": "Tourist-sensitive",
+    "local_daily_consumption": "Local daily",
+    "durable_household": "Durable / household",
+    "residual_other": "Residual other",
+}
+
+GROUP_DISPLAY_ORDER = [
+    "Tourist-sensitive",
+    "Local daily",
+    "Durable / household",
+    "Total benchmark",
+    "Residual other",
+]
+
+ROUND_COLUMNS = {
+    "avg_gap",
+    "median_gap",
+    "latest_gap",
+    "r_squared",
+    "adj_r_squared",
+    "early_reopening_avg_gap",
+    "normalization_avg_gap",
+    "recent_adjustment_avg_gap",
+}
+
+GROUP_TABLE_LABELS = {
+    "retail_group": "Retail group",
+    "avg_gap": "Average gap",
+    "median_gap": "Median gap",
+    "latest_gap": "Latest gap",
+    "phase_status": "Phase status",
+}
+
+TOURIST_TABLE_LABELS = {
+    "retail_category": "Retail category",
+    "avg_gap": "Average gap",
+    "latest_gap": "Latest gap",
+    "phase_status": "Phase status",
+    "latest_representative_recent": "Latest month representative",
+}
+
+REGRESSION_TABLE_LABELS = {
+    "model_id": "Model",
+    "r_squared": "R-squared",
+    "adj_r_squared": "Adjusted R-squared",
+    "condition_number": "Condition number",
+}
+
 
 def load_table(key: str) -> pd.DataFrame | None:
     """Load an output table, returning None if the pipeline has not generated it."""
@@ -34,6 +85,49 @@ def load_table(key: str) -> pd.DataFrame | None:
 def fmt(value: float) -> str:
     """Format a numeric dashboard value."""
     return f"{value:.2f}"
+
+
+def readable_group(group: str) -> str:
+    """Convert internal group id to readable dashboard label."""
+    return GROUP_LABELS.get(group, group)
+
+
+def group_role(group: str) -> str:
+    """Label group interpretation role for dashboard tables."""
+    if group == "benchmark_total":
+        return "benchmark"
+    if group == "residual_other":
+        return "behavioral group; interpretively weak"
+    return "behavioral group"
+
+
+def format_display_table(df: pd.DataFrame, *, keep_large_condition_number: bool = False) -> pd.DataFrame:
+    """Return a display-only copy with rounded numeric values."""
+    display = df.copy()
+    for col in display.columns:
+        if col in ROUND_COLUMNS and pd.api.types.is_numeric_dtype(display[col]):
+            display[col] = display[col].round(2)
+    if "condition_number" in display.columns and pd.api.types.is_numeric_dtype(display["condition_number"]):
+        if keep_large_condition_number:
+            display["condition_number"] = display["condition_number"].map(
+                lambda value: f"{value:.2e}" if abs(value) >= 1_000_000 else f"{value:.2f}"
+            )
+        else:
+            display["condition_number"] = display["condition_number"].round(2)
+    return display
+
+
+def rename_for_display(df: pd.DataFrame, labels: dict[str, str]) -> pd.DataFrame:
+    """Rename dashboard table columns without changing source data."""
+    return df.rename(columns=labels)
+
+
+def sort_group_display(df: pd.DataFrame) -> pd.DataFrame:
+    """Sort rows by the dashboard group display order."""
+    result = df.copy()
+    result["group_label"] = result["retail_group"].map(readable_group)
+    result["group_label"] = pd.Categorical(result["group_label"], categories=GROUP_DISPLAY_ORDER, ordered=True)
+    return result.sort_values("group_label")
 
 
 def get_baseline_tourist_recent() -> tuple[float | None, int | None, int | None]:
@@ -88,6 +182,11 @@ def show_overview() -> None:
         "Visitor recovery does not automatically imply recovery in traditional "
         "tourist-shopping retail categories."
     )
+    st.write(
+        "Total retail recovery can look broadly aligned with visitor recovery, but "
+        "category-level data show a weaker recent pattern in traditional tourist-shopping "
+        "categories such as department stores, jewellery, apparel, cosmetics, footwear, and optical shops."
+    )
     st.info(
         "This dashboard summarizes descriptive evidence from official monthly visitor-arrival "
         "and retail-sales data. It does not make causal claims."
@@ -106,8 +205,47 @@ def show_gap_section() -> None:
 
     group_phase = load_table("group_phase")
     if group_phase is not None:
-        st.subheader("Group Phase Gaps")
+        recent = group_phase.loc[group_phase["phase"].eq("recent_adjustment")].copy()
+        if not recent.empty:
+            st.write(
+                "The recent-adjustment snapshot shows tourist-sensitive categories below visitor recovery, "
+                "while local daily and durable/household groups are closer to visitor recovery under the primary baseline."
+            )
+            st.subheader("Recent Adjustment Snapshot")
+            chart_data = sort_group_display(
+                recent[["retail_group", "avg_gap", "median_gap", "latest_gap", "phase_status"]]
+            )
+            chart_labels = chart_data["group_label"].astype(str).tolist()
+            chart_values = chart_data["avg_gap"].tolist()
+            colors = ["#b65f5f" if value < 0 else "#4d7c78" for value in chart_values]
+            fig, ax = plt.subplots(figsize=(7.5, 3.2))
+            ax.bar(chart_labels, chart_values, color=colors)
+            ax.axhline(0, color="black", linewidth=1)
+            ax.set_title("Recent adjustment conversion gap by retail group", fontsize=11)
+            ax.set_ylabel("Average conversion gap", fontsize=9)
+            ax.tick_params(axis="x", rotation=18, labelsize=8)
+            ax.tick_params(axis="y", labelsize=8)
+            ax.grid(axis="y", alpha=0.25)
+            fig.tight_layout()
+            st.pyplot(fig, width="stretch")
+            plt.close(fig)
+            st.caption(
+                "Negative values indicate retail recovery below visitor recovery under the selected "
+                "recovery-index baseline. Total benchmark is not a behavioral retail group; Residual other is interpretively weak."
+            )
+            st.caption("Residual other is shown for completeness and should not drive the main interpretation.")
+
+            st.subheader("Recent Adjustment Table")
+            compact = chart_data[["group_label", "avg_gap", "median_gap", "latest_gap", "phase_status"]].copy()
+            compact = compact.rename(columns={"group_label": "retail_group"})
+            st.dataframe(
+                rename_for_display(format_display_table(compact), GROUP_TABLE_LABELS),
+                width="stretch",
+                hide_index=True,
+            )
+
         st.caption("Total retail is used as a benchmark, not as a behavioral retail group.")
+        st.caption("Residual other is interpretively weak.")
         cols = [
             "retail_group",
             "phase",
@@ -117,10 +255,13 @@ def show_gap_section() -> None:
             "phase_status",
         ]
         display = group_phase[cols].copy()
-        display["role"] = display["retail_group"].map(
-            lambda value: "benchmark" if value == "benchmark_total" else "behavioral group"
-        )
-        st.dataframe(display, width="stretch", hide_index=True)
+        display["group_label"] = display["retail_group"].map(readable_group)
+        display["role"] = display["retail_group"].map(group_role)
+        display = display[
+            ["group_label", "retail_group", "phase", "avg_gap", "median_gap", "latest_gap", "phase_status", "role"]
+        ].rename(columns={"group_label": "display_group"})
+        with st.expander("Show full group phase gap table"):
+            st.dataframe(format_display_table(display), width="stretch", hide_index=True)
 
 
 def show_tourist_reversal() -> None:
@@ -157,6 +298,7 @@ def show_tourist_reversal() -> None:
             "did not fully realign with visitor recovery."
         )
         st.subheader("Recent Adjustment Under 2019 Same-Month Baseline")
+        st.caption("Phase status is based on the recent-adjustment average gap, not the latest-month value.")
         cols = [
             "retail_category",
             "avg_gap",
@@ -164,7 +306,11 @@ def show_tourist_reversal() -> None:
             "phase_status",
             "latest_representative_recent",
         ]
-        st.dataframe(recent[cols].sort_values("avg_gap"), width="stretch", hide_index=True)
+        st.dataframe(
+            rename_for_display(format_display_table(recent[cols].sort_values("avg_gap")), TOURIST_TABLE_LABELS),
+            width="stretch",
+            hide_index=True,
+        )
 
     tourist = load_table("tourist_drilldown")
     if tourist is not None:
@@ -177,7 +323,12 @@ def show_tourist_reversal() -> None:
                 "phase_status",
                 "latest_representative_recent",
             ]
-            st.dataframe(tourist[cols], width="stretch", hide_index=True)
+            st.caption("Phase status is based on phase-average gaps; latest-month values may differ.")
+            st.dataframe(
+                rename_for_display(format_display_table(tourist[cols]), TOURIST_TABLE_LABELS),
+                width="stretch",
+                hide_index=True,
+            )
 
 
 def show_regression_robustness() -> None:
@@ -201,8 +352,15 @@ def show_regression_robustness() -> None:
             "explain more of the observed category-level variation."
         )
         st.caption("Post E is marked with a high-condition-number caveat and should be interpreted cautiously.")
-        st.subheader("Regression Model Summary")
-        st.dataframe(regression, width="stretch", hide_index=True)
+        with st.expander("Show detailed regression model table"):
+            st.dataframe(
+                rename_for_display(
+                    format_display_table(regression, keep_large_condition_number=True),
+                    REGRESSION_TABLE_LABELS,
+                ),
+                width="stretch",
+                hide_index=True,
+            )
 
     baseline_group = load_table("baseline_group_phase")
     if baseline_group is not None:
@@ -221,15 +379,19 @@ def show_regression_robustness() -> None:
 def show_limitations() -> None:
     """Render limitations section."""
     st.header("Limitations")
+    st.subheader("Data Limits")
     st.markdown(
         "- Monthly aggregation can hide shorter timing differences.\n"
         "- No transaction-level data are used.\n"
-        "- No tourist-spending microdata are used.\n"
+        "- No tourist-spending microdata are used."
+    )
+    st.subheader("Interpretation Limits")
+    st.markdown(
         "- The analysis is descriptive, not causal.\n"
         "- Category grouping requires judgment.\n"
         "- Local daily and durable/household interpretations are baseline-sensitive.\n"
-        "- Post E has a high-condition-number caveat.\n"
         "- Local daily and durable/household comparisons are more baseline-sensitive than the tourist-sensitive reversal.\n"
+        "- Post E has a high-condition-number caveat.\n"
         "- Hotel and event modules are excluded."
     )
 
