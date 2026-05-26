@@ -18,7 +18,9 @@ This is a research pilot, and the findings should be read as descriptive evidenc
 - Local daily and durable/household interpretations are more baseline-sensitive and closer to visitor recovery.
 - Visitor recovery alone has weak explanatory fit. Group and phase structure are more informative for describing category-specific recovery patterns.
 
-Current working thesis:
+Practical reading: total retail recovery should be treated as a benchmark, not as a sufficient signal for visitor-facing category recovery.
+
+Current Interpretation:
 
 ```text
 Total retail masks category-specific recovery paths. Tourist-sensitive discretionary categories moved from early reopening outperformance to recent underperformance relative to visitor recovery, and this reversal is robust to the same-month 2019 baseline check. Local daily and durable/household categories are closer to visitor recovery and more baseline-sensitive, so they should be interpreted more cautiously.
@@ -61,7 +63,7 @@ The pipeline currently covers:
 - C&SD API JSON extraction and preprocessing into normalized CSV files.
 - Recovery index construction.
 - Visitor-retail conversion gap calculation.
-- Manual retail category grouping.
+- Rule-based retail category grouping documented in `config/retail_category_groups.yaml`.
 - Phase segmentation.
 - Category and group drilldown analysis.
 - Descriptive regression.
@@ -93,6 +95,8 @@ Generated tables and figures:
 
 - `outputs/tables/`
 - `outputs/figures/`
+
+These folders are generated locally after running the pipeline and are not committed except for `.gitkeep` placeholders.
 
 Key generated tables include recovery panels, category and group gap diagnostics, descriptive regression summaries, and baseline sensitivity outputs.
 
@@ -131,7 +135,7 @@ python src/regression_robustness.py
 python src/baseline_sensitivity.py
 ```
 
-The raw C&SD API JSON payloads should already be present in `data/raw/` before preprocessing. The original 2018-2019 baseline outputs are not overwritten by the baseline sensitivity script.
+The raw C&SD API JSON payloads should already be present in `data/raw/` before preprocessing. The baseline sensitivity script writes separate output files and does not overwrite the primary baseline outputs.
 
 Generated tables and figures are ignored by design. Run the full pipeline before launching the dashboard, because the dashboard reads regenerated files from `outputs/tables/`.
 
