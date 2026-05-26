@@ -112,7 +112,13 @@ Key generated tables include recovery panels, category and group gap diagnostics
 
 Obtain the raw official C&SD payloads first; see `docs/raw_data_acquisition.md`.
 
-The conservative script order is:
+Recommended one-command pipeline:
+
+```bash
+python src/pipeline.py
+```
+
+The detailed script order is:
 
 ```bash
 python src/preprocess_censd_json.py
