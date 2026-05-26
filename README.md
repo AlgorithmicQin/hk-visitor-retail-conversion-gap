@@ -104,6 +104,14 @@ python src/baseline_sensitivity.py
 
 The raw C&SD API JSON payloads should already be present in `data/raw/` before preprocessing. The original 2018-2019 baseline outputs are not overwritten by the baseline sensitivity script.
 
+## How To Run Dashboard Locally
+
+```bash
+streamlit run app/streamlit_app.py
+```
+
+Run the reproduction scripts first so the dashboard can read the generated tables in `outputs/tables/`.
+
 ## Project Status
 
 Research pilot / portfolio candidate, not a final production dashboard.
